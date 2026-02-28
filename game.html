@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tytans Clicker Game</title>
+<style>
+body { font-family: Arial; text-align: center; background: #121212; color: white; padding: 20px; margin: 0; }
+h1 { color: gold; }
+.stat { font-size: 22px; margin: 10px 0; }
+button { padding: 10px 15px; margin: 6px; border: none; border-radius: 6px; cursor: pointer; }
+#clickBtn { background: orange; }
+.upgrade { background: green; color: white; display: block; width: 100%; margin-bottom: 5px; }
+#rebirthBtn { background: purple; color: white; }
+.upgrade-container { max-height: 300px; overflow-y: auto; border: 1px solid #333; padding: 10px; margin-bottom: 20px; }
+</style>
+</head>
+<body>
+
+<h1>Tytans Clicker Game</h1>
+<div class="stat" id="clickDisplay">Clicks: 0</div>
+<div class="stat" id="rebirthDisplay">Rebirths: 0</div>
+
+<button id="clickBtn">Click Me!</button>
+
+<h2>Infinite Upgrades</h2>
+<div class="upgrade-container" id="upgradeContainer"></div>
+
+<h2>Rebirth</h2>
+<p>Requires <span id="rebirthCost">100000</span> Clicks</p>
+<button id="rebirthBtn">Rebirth</button>
+
+<script>
+let clicks = 0;
+let perClick = 1;
+let rebirths = 0;
+let rebirthCost = 100000;
+
+const upgradeContainer = document.getElementById("upgradeContainer");
+const clickBtn = document.getElementById("clickBtn");
+const rebirthBtn = document.getElementById("rebirthBtn");
+
+const upgradeNames = ["Stronger Finger","Iron Hand","Titan Grip","Power Punch","Mega Tap","Ultra Smash","Hyper Press","Galaxy Click","Cosmic Force","Infinity Touch"];
+let upgrades = [];
+
+clickBtn.onclick = () => { clicks += perClick * (1 + rebirths * 0.5); updateDisplay(); }
+
+rebirthBtn.onclick = () => {
+  if (clicks >= rebirthCost) {
+    rebirths++;
+    clicks = 0;
+    perClick = 1;
+    rebirthCost *= 10;
+    document.getElementById("rebirthCost").textContent = rebirthCost;
+    upgrades = [];
+    upgradeContainer.innerHTML = "";
+    generateUpgrades(25);
+    updateDisplay();
+    alert("Rebirth successful! You are permanently stronger!");
+  }
+}
+
+function createUpgrade(i) {
+  const cost = 1000 * Math.pow(4,i);
+  const power = i+1;
+  const up = { name: upgradeNames[i % upgradeNames.length]+" Lv."+power, cost: cost, power: power };
+  upgrades.push(up);
+
+  const btn = document.createElement("button");
+  btn.className = "upgrade";
+  btn.innerHTML = `${up.name} (+${up.power} per click) Cost: <span id=\"cost-${i}\">${up.cost}</span>`;
+  btn.onclick = () => {
+    if (clicks >= up.cost) {
+      clicks -= up.cost;
+      perClick += up.power;
+      up.cost *= 3;
+      document.getElementById("cost-"+i).textContent = up.cost;
+      updateDisplay();
+    }
+  };
+  upgradeContainer.appendChild(btn);
+}
+
+function generateUpgrades(amount) { for(let i=0;i<amount;i++) createUpgrade(i); }
+
+function updateDisplay() {
+  document.getElementById("clickDisplay").textContent = "Clicks: "+Math.floor(clicks);
+  document.getElementById("rebirthDisplay").textContent = "Rebirths: "+rebirths;
+}
+
+generateUpgrades(25);
+updateDisplay();
+</script>
+
+</body>
+</html>
